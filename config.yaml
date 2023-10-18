@@ -1,0 +1,11 @@
+name: "cyber-events-tracker"
+mode: "dev"
+port: 8080
+version: "v0.0.1"
+contracts:
+  BSCT:
+    CollectPaidMw: "0x4e0d14e52418881511fd8156585d4b03eec1ff36"
+    ProfileNFT: "0x57e12b7a5F38A7F9c23eBD0400e6E53F2a45F271"
+  BSC:
+    CollectPaidMw: "0xb09ae63a2fd28686a0f386d1ddfd4b53687bf298"
+    ProfileNFT: ""
