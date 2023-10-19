@@ -2,6 +2,7 @@ name: "cyber-events-tracker"
 mode: "dev"
 port: 8080
 version: "v0.0.1"
+
 contracts:
   BSCT:
     CollectPaidMw: "0x4e0d14e52418881511fd8156585d4b03eec1ff36"
@@ -9,3 +10,12 @@ contracts:
   BSC:
     CollectPaidMw: "0xb09ae63a2fd28686a0f386d1ddfd4b53687bf298"
     ProfileNFT: ""
+
+mysql:
+  host: "127.0.0.1"
+  port: "3306"
+  user: "root"
+  password: "admin2023"
+  dbname: "cyber_events"
+  max_open_conns: 200
+  max_idle_conns: 50

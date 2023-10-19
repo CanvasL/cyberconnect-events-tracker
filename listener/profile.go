@@ -2,6 +2,7 @@ package listener
 
 import (
 	"context"
+	"cyber-events-tracker/logic"
 	"cyber-events-tracker/utils"
 	"log"
 	"math/big"
@@ -20,7 +21,7 @@ func CreateProfileEventListener(rpcUrl string, contractAddress common.Address) {
 		return
 	}
 
-	blockNumber, err := ethClient.BlockNumber(context.Background())
+	currentBlockNumber, err := ethClient.BlockNumber(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,7 +29,7 @@ func CreateProfileEventListener(rpcUrl string, contractAddress common.Address) {
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
 		Topics:    [][]common.Hash{{topicCreateProfile}},
-		FromBlock: big.NewInt(int64(blockNumber - 10000)),
+		FromBlock: big.NewInt(int64(currentBlockNumber)),
 	}
 
 	logs := make(chan types.Log)
@@ -41,8 +42,9 @@ func CreateProfileEventListener(rpcUrl string, contractAddress common.Address) {
 		select {
 		case err := <-sub.Err():
 			log.Fatal("topicCreateProfile error happened:", err)
-		case vLog := <-logs:
-			log.Println("topicCreateProfile event received", vLog) // pointer to event log
+		case event := <-logs:
+			log.Println("topicCreateProfile event received", event) // pointer to event log
+			logic.SetProfileInfo(event)
 		}
 	}
 }

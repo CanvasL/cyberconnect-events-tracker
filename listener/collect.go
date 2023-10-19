@@ -19,7 +19,7 @@ func CollectPaidMwEventListener(rpcUrl string, contractAddress common.Address) {
 	if(err != nil) {
 		return
 	}
-	blockNumber, err := ethClient.BlockNumber(context.Background())
+	currentBlockNumber, err := ethClient.BlockNumber(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func CollectPaidMwEventListener(rpcUrl string, contractAddress common.Address) {
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
 		Topics:    [][]common.Hash{{topicCollectPaidMwSet}},
-		FromBlock: big.NewInt(int64(blockNumber)),
+		FromBlock: big.NewInt(int64(currentBlockNumber)),
 	}
 
 	logs := make(chan types.Log)
@@ -42,6 +42,7 @@ func CollectPaidMwEventListener(rpcUrl string, contractAddress common.Address) {
 			log.Fatal("topicCollectPaidMwSet error happened:", err)
 		case vLog := <-logs:
 			log.Println("topicCollectPaidMwSet event received", vLog) // pointer to event log
+			
 		}
 	}
 }

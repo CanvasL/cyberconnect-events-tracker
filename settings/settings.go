@@ -12,17 +12,30 @@ type AppConfig struct {
 	Mode      string `mapstructure:"mode"`
 	Port      int    `mapstructure:"port"`
 	Version   string `mapstructure:"version"`
-	Contracts struct {
-		BSCT struct {
-			CollectPaidMw string `mapstructure:"CollectPaidMw"`
-			ProfileNFT    string `mapstructure:"ProfileNFT"`
-		}
-		BSC struct {
-			CollectPaidMw string `mapstructure:"CollectPaidMw"`
-			ProfileNFT    string `mapstructure:"ProfileNFT"`
-		}
-	} `mapstructure:"contracts"`
+	Contracts *ContractsConfig `mapstructure:"contracts"`
+	MySql *MySqlConfig `mapstructure:"mysql"`
 }
+
+type ContractsConfig struct {
+	BSCT struct {
+		CollectPaidMw string `mapstructure:"CollectPaidMw"`
+		ProfileNFT    string `mapstructure:"ProfileNFT"`
+	}
+	BSC struct {
+		CollectPaidMw string `mapstructure:"CollectPaidMw"`
+		ProfileNFT    string `mapstructure:"ProfileNFT"`
+	}
+}
+
+type MySqlConfig struct {
+	Host         string `mapstructure:"host"`
+	User         string `mapstructure:"user"`
+	Password     string `mapstructure:"password"`
+	DB           string `mapstructure:"dbname"`
+	Port         int    `mapstructure:"port"`
+	MaxOpenConns int    `mapstructure:"max_open_conns"`
+	MaxIdleConns int    `mapstructure:"max_idle_conns"`
+} 
 
 var Config = new(AppConfig)
 
