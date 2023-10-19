@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-type ProfileEvent struct {
+type CreateProfileEvent struct {
 	To        common.Address `json:"to"`
 	ProfileID *big.Int       `json:"profileId"`
 	Handle    string         `json:"handle"`

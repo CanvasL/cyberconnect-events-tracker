@@ -2,6 +2,7 @@ package settings
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/viper"
 )
@@ -12,8 +13,14 @@ type AppConfig struct {
 	Port      int    `mapstructure:"port"`
 	Version   string `mapstructure:"version"`
 	Contracts struct {
-		BSCT map[string]string `mapstructure:"BSCT"`
-		BSC  map[string]string `mapstructure:"BSC"`
+		BSCT struct {
+			CollectPaidMw string `mapstructure:"CollectPaidMw"`
+			ProfileNFT    string `mapstructure:"ProfileNFT"`
+		}
+		BSC struct {
+			CollectPaidMw string `mapstructure:"CollectPaidMw"`
+			ProfileNFT    string `mapstructure:"ProfileNFT"`
+		}
 	} `mapstructure:"contracts"`
 }
 
@@ -29,7 +36,7 @@ func Init() (err error) {
 	}
 
 	if err = viper.Unmarshal(Config); err != nil {
-		fmt.Println("viper.Unmarshal failed, err:", err)
+		log.Fatalln("viper.Unmarshal failed, err:", err)
 	}
 
 	return

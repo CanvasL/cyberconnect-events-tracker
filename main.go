@@ -1,28 +1,32 @@
 package main
 
 import (
+	"cyber-events-tracker/listener"
+	"cyber-events-tracker/router"
 	"cyber-events-tracker/settings"
-	// "context"
-	// // "cyber-events-tracker/model"
-	// "database/sql"
-	// "fmt"
+	"fmt"
 	"log"
+	"os"
 
-	// "github.com/ethereum/go-ethereum/accounts/abi/bind"
-	// "github.com/ethereum/go-ethereum/common"
-	// "github.com/ethereum/go-ethereum/ethclient"
-	// "github.com/ethereum/go-ethereum/event"
-	// // "github.com/ethereum/go-ethereum/params"
-	// "github.com/go-sql-driver/mysql"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 func main() {
 	if err := settings.Init(); err != nil {
-		log.Fatalln("init settings failed, err:", err)
+		log.Fatalln("init settings failed.", err)
 		return
 	}
 
-	log.Println("settings:", settings.Config)
+	go listener.CollectPaidMwEventListener(os.Getenv("BSCT_RPC_URL"), common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw))
+
+	go listener.CreateProfileEventListener(os.Getenv("BSCT_RPC_URL"), common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT))
+	
+	r := router.SetupRouter()
+	if err := r.Run(fmt.Sprintf(":%d", settings.Config.Port)); err != nil {
+		log.Fatalln("run server failed.", err)
+		return
+	}
+
 	// // Define MySQL database connection
 	// cfg := mysql.NewConfig()
 	// cfg.User = "username"
