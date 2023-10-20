@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"cyber-events-tracker/abi_reader"
+	"cyber-events-tracker/contract_abi"
 	"cyber-events-tracker/dao/mysql"
 	"cyber-events-tracker/model"
 	"cyber-events-tracker/utils"
@@ -19,7 +19,7 @@ func SetCollectInfo(chainID uint64, vLog types.Log) (err error) {
 		Currency          common.Address
 		SubscribeRequired bool
 	}{}
-	err = abi_reader.AbiCollectPaidMw.UnpackIntoInterface(&eventData, "CollectPaidMwSet", vLog.Data)
+	err = contract_abi.AbiCollectPaidMw.UnpackIntoInterface(&eventData, "CollectPaidMwSet", vLog.Data)
 	if err != nil {
 		return
 	}

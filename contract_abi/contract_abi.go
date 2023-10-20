@@ -1,4 +1,4 @@
-package abi_reader
+package contract_abi
 
 import (
 	"os"
@@ -12,7 +12,7 @@ var AbiCollectPaidMw abi.ABI
 var AbiProfileNFT abi.ABI
 
 func Init() (err error) {
-	path, _ := filepath.Abs("./abi_reader/CollectPaidMw.json")
+	path, _ := filepath.Abs("./contract_abi/abi/CollectPaidMw.json")
 	file, err := os.ReadFile(path)
 	if err != nil {
 		return
@@ -22,7 +22,7 @@ func Init() (err error) {
 		return
 	}
 
-	path, _ = filepath.Abs("./abi_reader/ProfileNFT.json")
+	path, _ = filepath.Abs("./contract_abi/abi/ProfileNFT.json")
 	file, err = os.ReadFile(path)
 	if err != nil {
 		return

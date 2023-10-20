@@ -18,13 +18,13 @@ var topicCreateProfile = crypto.Keccak256Hash([]byte("CreateProfile(address,uint
 func CreateProfileEventListener(chainID uint64, contractAddress common.Address) {
 	ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
 	if(err != nil) {
-		log.Fatalln("GetEthClient failed, ", err)
+		log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
 		return
 	}
 
 	currentBlockNumber, err := ethClient.BlockNumber(context.Background())
 	if err != nil {
-		log.Fatal("Get current BlockNumber failed, ", err)
+		log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
 	}
 
 	query := ethereum.FilterQuery{
@@ -36,20 +36,21 @@ func CreateProfileEventListener(chainID uint64, contractAddress common.Address) 
 	logs := make(chan types.Log)
 	sub, err := ethClient.SubscribeFilterLogs(context.Background(), query, logs)
 	if err != nil {
-		log.Fatal("SubscribeFilterLogs failed, ", err)
+		log.Fatalf("[%s]: SubscribeFilterLogs failed, %v", chainID, err)
 	}
 
 	for {
 		select {
 		case err := <-sub.Err():
-			log.Fatal("Chan CreateProfile received error:", err)
+			log.Fatalf("[%d]: Chan CollectPaidMwSet received error: %v", chainID, err)
+
 		case vLog := <-logs:
-			log.Println("Chan CreateProfile received vLog.") 
+			log.Printf("[%d]: Chan CollectPaidMwSet received vLog.", chainID) 
 			err = logic.SetProfilesInfo(chainID, vLog)
 			if(err != nil) {
-				log.Fatalln("SetProfilesInfo failed, ", err)
+				log.Fatalf("[%d]: SetCollectInfo failed, %v", chainID, err)
 			} else {
-				log.Println("SetProfilesInfo successfully.")
+				log.Printf("[%d]: SetCollectInfo successfully.", chainID)
 			}
 		}
 	}

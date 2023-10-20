@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cyber-events-tracker/abi_reader"
+	"cyber-events-tracker/contract_abi"
 	"cyber-events-tracker/dao/mysql"
 	"cyber-events-tracker/listener"
 	"cyber-events-tracker/router"
@@ -18,8 +18,8 @@ func main() {
 		return
 	}
 
-	if err := abi_reader.Init(); err != nil {
-		log.Fatalln("Init abi failed, ", err)
+	if err := contract_abi.Init(); err != nil {
+		log.Fatalln("Init contract abi failed, ", err)
 		return
 	}
 	

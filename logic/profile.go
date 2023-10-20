@@ -1,8 +1,7 @@
 package logic
 
 import (
-	// "cyber-events-tracker/abi_reader"
-	"cyber-events-tracker/abi_reader"
+	"cyber-events-tracker/contract_abi"
 	"cyber-events-tracker/dao/mysql"
 	"cyber-events-tracker/model"
 	"cyber-events-tracker/utils"
@@ -18,7 +17,7 @@ func SetProfilesInfo(chainID uint64, vLog types.Log) (err error) {
 		Avatar   string
 		Metadata string
 	}{}
-	err = abi_reader.AbiProfileNFT.UnpackIntoInterface(&eventData, "CreateProfile", vLog.Data)
+	err = contract_abi.AbiProfileNFT.UnpackIntoInterface(&eventData, "CreateProfile", vLog.Data)
 	if err != nil {
 		return
 	}
