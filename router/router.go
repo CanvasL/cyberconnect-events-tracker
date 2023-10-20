@@ -16,9 +16,9 @@ func SetupRouter() *gin.Engine {
 		})
 	})
 
-	v1.GET("/collect", controller.GetCollectInfoHandler)
+	v1.GET("/:chain/collect-info/:profile/:essence", controller.GetCollectInfoHandler)
 
-	v1.GET("/profile", controller.GetProfilesHandler)
+	v1.GET("/:chain/profiles-info/:account", controller.GetProfilesInfoHandler)
 
 	return r
 }

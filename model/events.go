@@ -1,34 +1,28 @@
 package model
 
-import (
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/common"
-)
-
 type ParamCreateProfileEvent struct {
-	ChainName   string         `json:"chain_name"`
-	ChainId     uint64         `json:"chain_id"`
-	BlockNumber uint64         `json:"block_number"`
-	TxHash      common.Hash    `json:"tx_hash"`
-	To          common.Address `json:"to"`
-	ProfileID   *big.Int       `json:"profile_id"`
-	Handle      string         `json:"handle"`
-	Avatar      string         `json:"avatar"`
-	Metadata    string         `json:"metadata"`
+	ChainName   string `json:"chain_name" db:"chain_name"`
+	ChainID     uint64 `json:"chain_id" db:"chain_id"`
+	BlockNumber uint64 `json:"block_number" db:"block_number"`
+	TxHash      string `json:"tx_hash" db:"tx_hash"`
+	To          string `json:"to" db:"to"`
+	ProfileID   string `json:"profile_id" db:"profile_id"`
+	Handle      string `json:"handle" db:"handle"`
+	Avatar      string `json:"avatar" db:"avatar"`
+	Metadata    string `json:"metadata" db:"metadata"`
 }
 
 type ParamCollectPaidMwSetEvent struct {
-	ChainName         string         `json:"chain_name"`
-	ChainId           string         `json:"chain_id"`
-	BlockNumber       uint64         `json:"block_number"`
-	TxHash            common.Hash    `json:"tx_hash"`
-	Namespace         common.Address `json:"namespace"`
-	ProfileID         *big.Int       `json:"profile_id"`
-	EssenceID         *big.Int       `json:"essenceId"`
-	TotalSupply       *big.Int       `json:"total_supply"`
-	Amount            *big.Int       `json:"amount"`
-	Recipient         common.Address `json:"recipient"`
-	Currency          common.Address `json:"currency"`
-	SubscribeRequired bool           `json:"subscribe_required"`
+	ChainName         string `json:"chain_name" db:"chain_name"`
+	ChainID           uint64 `json:"chain_id" db:"chain_id"`
+	BlockNumber       uint64 `json:"block_number" db:"block_number"`
+	TxHash            string `json:"tx_hash" db:"tx_hash"`
+	Namespace         string `json:"namespace" db:"namespace"`
+	ProfileID         string `json:"profile_id" db:"profile_id"`
+	EssenceID         string `json:"essence_id" db:"essence_id"`
+	TotalSupply       string `json:"total_supply" db:"total_supply"`
+	Amount            string `json:"amount" db:"amount"`
+	Recipient         string `json:"recipient" db:"recipient"`
+	Currency          string `json:"currency" db:"currency"`
+	SubscribeRequired bool   `json:"subscribe_required" db:"subscribe_required"`
 }
