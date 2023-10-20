@@ -39,6 +39,16 @@ func main() {
 		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT),
 	)
 
+	go listener.CollectPaidMwSetEventListener(
+		56, 
+		common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw),
+	)
+
+	go listener.CreateProfileEventListener(
+		56, 
+		common.HexToAddress(settings.Config.Contracts.BSC.ProfileNFT),
+	)
+
 	r := router.SetupRouter(settings.Config.Mode)
 	if err := r.Run(fmt.Sprintf(":%d", settings.Config.Port)); err != nil {
 		log.Fatalln("Run server failed, ", err)
