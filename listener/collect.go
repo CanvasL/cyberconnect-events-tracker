@@ -42,14 +42,14 @@ func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Addres
 	for {
 		select {
 		case err := <-sub.Err():
-			log.Fatal("chan CollectPaidMwSet received error:", err)
+			log.Fatal("Chan CollectPaidMwSet received error:", err)
 		case vLog := <-logs:
-			log.Println("chan CollectPaidMwSet received vLog") 
+			log.Println("Chan CollectPaidMwSet received vLog.") 
 			err = logic.SetCollectInfo(chainID, vLog)
 			if(err != nil) {
 				log.Fatalln("SetCollectInfo failed, ", err)
 			} else {
-				log.Println("SetCollectInfo successfully")
+				log.Println("SetCollectInfo successfully.")
 			}
 		}
 	}

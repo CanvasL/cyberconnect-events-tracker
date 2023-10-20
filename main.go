@@ -14,17 +14,17 @@ import (
 
 func main() {
 	if err := settings.Init(); err != nil {
-		log.Fatalln("init settings failed.", err)
+		log.Fatalln("Init settings failed, ", err)
 		return
 	}
 
 	if err := abi_reader.Init(); err != nil {
-		log.Fatalln("init abi failed.", err)
+		log.Fatalln("Init abi failed, ", err)
 		return
 	}
 	
 	if err := mysql.Init(settings.Config.MySql); err != nil {
-		fmt.Println("init mysql failed, err:", err)
+		fmt.Println("Init mysql failed, ", err)
 		return
 	}
 	defer mysql.Close()
@@ -39,9 +39,9 @@ func main() {
 		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT),
 	)
 
-	r := router.SetupRouter()
+	r := router.SetupRouter(settings.Config.Mode)
 	if err := r.Run(fmt.Sprintf(":%d", settings.Config.Port)); err != nil {
-		log.Fatalln("run server failed.", err)
+		log.Fatalln("Run server failed, ", err)
 		return
 	}
 }

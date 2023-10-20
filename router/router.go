@@ -5,7 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(mode string) *gin.Engine {
+	gin.SetMode(mode)
 	r := gin.Default()
 
 	v1 := r.Group("/api/v1")

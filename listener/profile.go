@@ -42,9 +42,9 @@ func CreateProfileEventListener(chainID uint64, contractAddress common.Address) 
 	for {
 		select {
 		case err := <-sub.Err():
-			log.Fatal("chan CreateProfile received error:", err)
+			log.Fatal("Chan CreateProfile received error:", err)
 		case vLog := <-logs:
-			log.Println("chan CreateProfile received vLog") 
+			log.Println("Chan CreateProfile received vLog.") 
 			err = logic.SetProfilesInfo(chainID, vLog)
 			if(err != nil) {
 				log.Fatalln("SetProfilesInfo failed, ", err)

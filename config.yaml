@@ -1,6 +1,6 @@
 name: "cyber-events-tracker"
-mode: "dev"
-port: 8080
+mode: "release"
+port: 3457
 version: "v0.0.1"
 
 contracts:
@@ -9,7 +9,7 @@ contracts:
     ProfileNFT: "0x57e12b7a5F38A7F9c23eBD0400e6E53F2a45F271"
   BSC:
     CollectPaidMw: "0xb09ae63a2fd28686a0f386d1ddfd4b53687bf298"
-    ProfileNFT: ""
+    ProfileNFT: "0x2723522702093601e6360cae665518c4f63e9da6"
 
 mysql:
   host: "127.0.0.1"
