@@ -6,6 +6,7 @@ import (
 	"cyber-events-tracker/utils"
 	"log"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,9 +16,9 @@ import (
 
 var topicCreateProfile = crypto.Keccak256Hash([]byte("CreateProfile(address,uint256,string,string,string)"))
 
-func CreateProfileEventListener(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
+func CreateProfileEventListener(chainID uint64, contractAddress common.Address) {
 	ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
-	if(err != nil) {
+	if err != nil {
 		log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
 		return
 	}
@@ -28,43 +29,6 @@ func CreateProfileEventListener(chainID uint64, contractAddress common.Address, 
 	}
 
 	currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
-
-	if(queryHistory) {
-		log.Printf("[%d]: Start query CreateProfile events...", chainID)
-
-		var _startAt *big.Int = startAt
-		var _endAt *big.Int = big.NewInt(0)
-		for {
-			_endAt.Add(_startAt, big.NewInt(1000))
-			if(_endAt.Cmp(currentBlockNumber) > 0) {
-				log.Println("over than current block number")
-				_endAt.Set(currentBlockNumber)
-			}
-
-			query := ethereum.FilterQuery{
-				Addresses: []common.Address{contractAddress},
-				Topics:    [][]common.Hash{{topicCreateProfile}},
-				FromBlock: _startAt,
-				ToBlock: _endAt,
-			}
-		
-			historyLogs, err := ethClient.FilterLogs(context.Background(), query)
-			if(err != nil) {
-				log.Fatalf("[%d]: FilterLogs CreateProfile failed, ", err)
-				return
-			}
-			for _, historyLog := range historyLogs {
-				logic.SetProfilesInfo(chainID, historyLog)
-			}
-			log.Printf("%v, %v", _endAt, currentBlockNumber)
-			if(_endAt.Cmp(currentBlockNumber) == 0) {
-				break
-			}
-			_startAt.Add(_endAt, big.NewInt(1))
-		}
-
-		log.Printf("[%d]: Query CreateProfile history Logs successfully", chainID)
-	}
 
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
@@ -85,13 +49,71 @@ func CreateProfileEventListener(chainID uint64, contractAddress common.Address, 
 			log.Fatalf("[%d]: Chan CreateProfile received error: %v", chainID, err)
 
 		case vLog := <-logs:
-			log.Printf("[%d]: Chan CreateProfile received vLog.", chainID) 
+			log.Printf("[%d]: Chan CreateProfile received vLog.", chainID)
 			err = logic.SetProfilesInfo(chainID, vLog)
-			if(err != nil) {
+			if err != nil {
 				log.Fatalf("[%d]: SetProfileInfo failed, %v", chainID, err)
 			} else {
 				log.Printf("[%d]: SetProfileInfo successfully.", chainID)
 			}
 		}
+	}
+}
+
+func QueryCreateProfileEvents(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
+	if queryHistory {
+		ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
+		if err != nil {
+			log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
+			return
+		}
+
+		_currentBlockNumber, err := ethClient.BlockNumber(context.Background())
+		if err != nil {
+			log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
+		}
+
+		currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
+
+		log.Printf("[%d]: Start query CreateProfile events...", chainID)
+
+		var _startAt *big.Int = big.NewInt(25455191)
+		var _endAt *big.Int = big.NewInt(0)
+		for {
+			_endAt.Add(_startAt, big.NewInt(49999))
+			if _endAt.Cmp(currentBlockNumber) > 0 {
+				_endAt.Set(currentBlockNumber)
+			}
+
+			query := ethereum.FilterQuery{
+				Addresses: []common.Address{contractAddress},
+				Topics:    [][]common.Hash{{topicCreateProfile}},
+				FromBlock: _startAt,
+				ToBlock:   _endAt,
+			}
+
+			historyLogs, err := ethClient.FilterLogs(context.Background(), query)
+			if err != nil {
+				log.Fatalf("[%d]: FilterLogs CreateProfile failed, %v", chainID, err)
+				return
+			}
+		
+			for _, historyLog := range historyLogs {
+				err = logic.SetProfilesInfo(chainID, historyLog)
+				if(err != nil) {
+					log.Fatalf("[%d]: SetProfileInfo failed, %v", chainID, err)
+				}
+			}
+
+			time.Sleep(200 * time.Millisecond)
+
+			if _endAt.Cmp(currentBlockNumber) == 0 {
+				break
+			}
+
+			_startAt.Add(_endAt, big.NewInt(1))
+		}
+
+		log.Printf("[%d]: Query CreateProfile history events successfully.", chainID)
 	}
 }

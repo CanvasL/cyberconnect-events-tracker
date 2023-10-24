@@ -8,7 +8,7 @@ CREATE TABLE
         `to` VARCHAR(255) NOT NULL,
         profile_id VARCHAR(255) NOT NULL,
         handle VARCHAR(255) NOT NULL,
-        avatar VARCHAR(255),
+        avatar TEXT,
         metadata TEXT
     );
 

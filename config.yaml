@@ -1,5 +1,5 @@
 name: "cyber-events-tracker"
-mode: "debug"
+mode: "release"
 port: 3457
 version: "v0.0.1"
 
@@ -21,7 +21,7 @@ contracts:
     ProfileNFT: 
       address: "0x2723522702093601e6360cae665518c4f63e9da6"
       start_at: 21275193
-      query_history: true
+      query_history: false
 
 mysql:
   host: "127.0.0.1"

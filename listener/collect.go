@@ -6,6 +6,7 @@ import (
 	"cyber-events-tracker/utils"
 	"log"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,9 +16,9 @@ import (
 
 var topicCollectPaidMwSet = crypto.Keccak256Hash([]byte("CollectPaidMwSet(address,uint256,uint256,uint256,uint256,address,address,bool)"))
 
-func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
+func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Address) {
 	ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
-	if(err != nil) {
+	if err != nil {
 		log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
 		return
 	}
@@ -28,42 +29,6 @@ func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Addres
 	}
 
 	currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
-
-	if(queryHistory) {
-		log.Printf("[%d]: Start query CollectPaidMwSet events...", chainID)
-
-		var _startAt *big.Int = startAt
-		var _endAt *big.Int = big.NewInt(0)
-		for {
-			_endAt.Add(_startAt, big.NewInt(49999))
-			if(_endAt.Cmp(currentBlockNumber) > 0) {
-				_endAt.Set(currentBlockNumber)
-			}
-
-			query := ethereum.FilterQuery{
-				Addresses: []common.Address{contractAddress},
-				Topics:    [][]common.Hash{{topicCollectPaidMwSet}},
-				FromBlock: _startAt,
-				ToBlock: _endAt,
-			}
-		
-			historyLogs, err := ethClient.FilterLogs(context.Background(), query)
-			if(err != nil) {
-				log.Fatalf("[%d]: FilterLogs CollectPaidMwSet failed, ", err)
-				return
-			}
-
-			for _, historyLog := range historyLogs {
-				logic.SetCollectInfo(chainID, historyLog)
-			}
-			if(_endAt.Cmp(currentBlockNumber) == 0) {
-				break
-			}
-			_startAt.Add(_endAt, big.NewInt(1))
-		}
-		
-		log.Printf("[%d]: Query CollectPaidMwSet history Logs successfully", chainID)
-	}
 
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
@@ -84,7 +49,7 @@ func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Addres
 			log.Fatalf("[%d]: Chan CollectPaidMwSet received error: %v", chainID, err)
 
 		case vLog := <-logs:
-			log.Printf("[%d]: Chan CollectPaidMwSet received vLog.", chainID) 
+			log.Printf("[%d]: Chan CollectPaidMwSet received vLog.", chainID)
 			err = logic.SetCollectInfo(chainID, vLog)
 			if err != nil {
 				log.Fatalf("[%d]: SetCollectInfo failed, %v", chainID, err)
@@ -92,5 +57,63 @@ func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Addres
 				log.Printf("[%d]: SetCollectInfo successfully.", chainID)
 			}
 		}
+	}
+}
+
+func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
+	if queryHistory {
+		ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
+		if err != nil {
+			log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
+			return
+		}
+
+		_currentBlockNumber, err := ethClient.BlockNumber(context.Background())
+		if err != nil {
+			log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
+		}
+
+		currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
+
+		log.Printf("[%d]: Start query CollectPaidMwSet events...", chainID)
+
+		var _startAt *big.Int = startAt
+		var _endAt *big.Int = big.NewInt(0)
+		for {
+			_endAt.Add(_startAt, big.NewInt(49999))
+			if _endAt.Cmp(currentBlockNumber) > 0 {
+				_endAt.Set(currentBlockNumber)
+			}
+
+			query := ethereum.FilterQuery{
+				Addresses: []common.Address{contractAddress},
+				Topics:    [][]common.Hash{{topicCollectPaidMwSet}},
+				FromBlock: _startAt,
+				ToBlock:   _endAt,
+			}
+
+			historyLogs, err := ethClient.FilterLogs(context.Background(), query)
+			if err != nil {
+				log.Fatalf("[%d]: FilterLogs CollectPaidMwSet failed, %v", chainID, err)
+				return
+			}
+
+			for _, historyLog := range historyLogs {
+				err = logic.SetCollectInfo(chainID, historyLog)
+				if(err != nil) {
+					log.Fatalf("[%d]: SetCollectInfo failed, %v", chainID, err)
+				}
+			}
+
+			time.Sleep(200 * time.Millisecond)
+
+			if _endAt.Cmp(currentBlockNumber) == 0 {
+				break
+			}
+
+			_startAt.Add(_endAt, big.NewInt(1))
+		}
+
+		log.Printf("[%d]: Query CollectPaidMwSet history events successfully.", chainID)
 	}
 }

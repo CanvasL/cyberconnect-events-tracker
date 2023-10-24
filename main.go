@@ -30,32 +30,52 @@ func main() {
 	}
 	defer mysql.Close()
 
-	// go listener.CollectPaidMwSetEventListener(
-	// 	97, 
-	// 	common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw.Address),
-	// 	big.NewInt(int64(settings.Config.Contracts.BSCT.CollectPaidMw.StartAt)),
-	// 	settings.Config.Contracts.BSCT.CollectPaidMw.QueryHistory,
-	// )
+	listener.QueryCollectPaidMwSetEvents(
+		97, 
+		common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw.Address),
+		big.NewInt(int64(settings.Config.Contracts.BSCT.CollectPaidMw.StartAt)),
+		settings.Config.Contracts.BSCT.CollectPaidMw.QueryHistory,
+	)
 
-	go listener.CreateProfileEventListener(
+	listener.QueryCreateProfileEvents(
 		97, 
 		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT.Address),
 		big.NewInt(int64(settings.Config.Contracts.BSCT.ProfileNFT.StartAt)),
 		settings.Config.Contracts.BSCT.ProfileNFT.QueryHistory,
 	)
 
-	// go listener.CollectPaidMwSetEventListener(
-	// 	56, 
-	// 	common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw.Address),
-	// 	big.NewInt(int64(settings.Config.Contracts.BSC.CollectPaidMw.StartAt)),
-	// 	settings.Config.Contracts.BSC.CollectPaidMw.QueryHistory,
-	// )
+	listener.QueryCollectPaidMwSetEvents(
+		56, 
+		common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw.Address),
+		big.NewInt(int64(settings.Config.Contracts.BSC.CollectPaidMw.StartAt)),
+		settings.Config.Contracts.BSC.CollectPaidMw.QueryHistory,
+	)
 
-	go listener.CreateProfileEventListener(
+	listener.QueryCreateProfileEvents(
 		56, 
 		common.HexToAddress(settings.Config.Contracts.BSC.ProfileNFT.Address),
 		big.NewInt(int64(settings.Config.Contracts.BSC.ProfileNFT.StartAt)),
 		settings.Config.Contracts.BSC.ProfileNFT.QueryHistory,
+	)
+
+	go listener.CollectPaidMwSetEventListener(
+		97, 
+		common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw.Address),
+	)
+
+	go listener.CreateProfileEventListener(
+		97, 
+		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT.Address),
+	)
+
+	go listener.CollectPaidMwSetEventListener(
+		56, 
+		common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw.Address),
+	)
+
+	go listener.CreateProfileEventListener(
+		56, 
+		common.HexToAddress(settings.Config.Contracts.BSC.ProfileNFT.Address),
 	)
 
 	r := router.SetupRouter(settings.Config.Mode)
