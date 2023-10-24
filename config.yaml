@@ -1,15 +1,27 @@
 name: "cyber-events-tracker"
-mode: "release"
+mode: "debug"
 port: 3457
 version: "v0.0.1"
 
 contracts:
   BSCT:
-    CollectPaidMw: "0x4e0d14e52418881511fd8156585d4b03eec1ff36"
-    ProfileNFT: "0x57e12b7a5F38A7F9c23eBD0400e6E53F2a45F271"
+    CollectPaidMw: 
+      address: "0x4e0d14e52418881511fd8156585d4b03eec1ff36"
+      start_at: 27886595
+      query_history: true
+    ProfileNFT: 
+      address: "0x57e12b7a5F38A7F9c23eBD0400e6E53F2a45F271"
+      start_at: 22782185
+      query_history: true
   BSC:
-    CollectPaidMw: "0xb09ae63a2fd28686a0f386d1ddfd4b53687bf298"
-    ProfileNFT: "0x2723522702093601e6360cae665518c4f63e9da6"
+    CollectPaidMw: 
+      address: "0xb09ae63a2fd28686a0f386d1ddfd4b53687bf298"
+      start_at: 25173248
+      query_history: true
+    ProfileNFT: 
+      address: "0x2723522702093601e6360cae665518c4f63e9da6"
+      start_at: 21275193
+      query_history: true
 
 mysql:
   host: "127.0.0.1"

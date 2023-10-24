@@ -15,42 +15,82 @@ import (
 
 var topicCreateProfile = crypto.Keccak256Hash([]byte("CreateProfile(address,uint256,string,string,string)"))
 
-func CreateProfileEventListener(chainID uint64, contractAddress common.Address) {
+func CreateProfileEventListener(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
 	ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
 	if(err != nil) {
 		log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
 		return
 	}
 
-	currentBlockNumber, err := ethClient.BlockNumber(context.Background())
+	_currentBlockNumber, err := ethClient.BlockNumber(context.Background())
 	if err != nil {
 		log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
+	}
+
+	currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
+
+	if(queryHistory) {
+		log.Printf("[%d]: Start query CreateProfile events...", chainID)
+
+		var _startAt *big.Int = startAt
+		var _endAt *big.Int = big.NewInt(0)
+		for {
+			_endAt.Add(_startAt, big.NewInt(1000))
+			if(_endAt.Cmp(currentBlockNumber) > 0) {
+				log.Println("over than current block number")
+				_endAt.Set(currentBlockNumber)
+			}
+
+			query := ethereum.FilterQuery{
+				Addresses: []common.Address{contractAddress},
+				Topics:    [][]common.Hash{{topicCreateProfile}},
+				FromBlock: _startAt,
+				ToBlock: _endAt,
+			}
+		
+			historyLogs, err := ethClient.FilterLogs(context.Background(), query)
+			if(err != nil) {
+				log.Fatalf("[%d]: FilterLogs CreateProfile failed, ", err)
+				return
+			}
+			for _, historyLog := range historyLogs {
+				logic.SetProfilesInfo(chainID, historyLog)
+			}
+			log.Printf("%v, %v", _endAt, currentBlockNumber)
+			if(_endAt.Cmp(currentBlockNumber) == 0) {
+				break
+			}
+			_startAt.Add(_endAt, big.NewInt(1))
+		}
+
+		log.Printf("[%d]: Query CreateProfile history Logs successfully", chainID)
 	}
 
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
 		Topics:    [][]common.Hash{{topicCreateProfile}},
-		FromBlock: big.NewInt(int64(currentBlockNumber)),
+		FromBlock: currentBlockNumber,
 	}
 
 	logs := make(chan types.Log)
 	sub, err := ethClient.SubscribeFilterLogs(context.Background(), query, logs)
 	if err != nil {
-		log.Fatalf("[%s]: SubscribeFilterLogs failed, %v", chainID, err)
+		log.Fatalf("[%s]: SubscribeFilterLogs CreateProfile failed, %v", chainID, err)
 	}
+	log.Printf("[%d] Chan CreateProfile started.", chainID)
 
 	for {
 		select {
 		case err := <-sub.Err():
-			log.Fatalf("[%d]: Chan CollectPaidMwSet received error: %v", chainID, err)
+			log.Fatalf("[%d]: Chan CreateProfile received error: %v", chainID, err)
 
 		case vLog := <-logs:
-			log.Printf("[%d]: Chan CollectPaidMwSet received vLog.", chainID) 
+			log.Printf("[%d]: Chan CreateProfile received vLog.", chainID) 
 			err = logic.SetProfilesInfo(chainID, vLog)
 			if(err != nil) {
-				log.Fatalf("[%d]: SetCollectInfo failed, %v", chainID, err)
+				log.Fatalf("[%d]: SetProfileInfo failed, %v", chainID, err)
 			} else {
-				log.Printf("[%d]: SetCollectInfo successfully.", chainID)
+				log.Printf("[%d]: SetProfileInfo successfully.", chainID)
 			}
 		}
 	}

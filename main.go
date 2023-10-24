@@ -8,6 +8,7 @@ import (
 	"cyber-events-tracker/settings"
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -29,24 +30,32 @@ func main() {
 	}
 	defer mysql.Close()
 
-	go listener.CollectPaidMwSetEventListener(
-		97, 
-		common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw),
-	)
+	// go listener.CollectPaidMwSetEventListener(
+	// 	97, 
+	// 	common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw.Address),
+	// 	big.NewInt(int64(settings.Config.Contracts.BSCT.CollectPaidMw.StartAt)),
+	// 	settings.Config.Contracts.BSCT.CollectPaidMw.QueryHistory,
+	// )
 
 	go listener.CreateProfileEventListener(
 		97, 
-		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT),
+		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT.Address),
+		big.NewInt(int64(settings.Config.Contracts.BSCT.ProfileNFT.StartAt)),
+		settings.Config.Contracts.BSCT.ProfileNFT.QueryHistory,
 	)
 
-	go listener.CollectPaidMwSetEventListener(
-		56, 
-		common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw),
-	)
+	// go listener.CollectPaidMwSetEventListener(
+	// 	56, 
+	// 	common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw.Address),
+	// 	big.NewInt(int64(settings.Config.Contracts.BSC.CollectPaidMw.StartAt)),
+	// 	settings.Config.Contracts.BSC.CollectPaidMw.QueryHistory,
+	// )
 
 	go listener.CreateProfileEventListener(
 		56, 
-		common.HexToAddress(settings.Config.Contracts.BSC.ProfileNFT),
+		common.HexToAddress(settings.Config.Contracts.BSC.ProfileNFT.Address),
+		big.NewInt(int64(settings.Config.Contracts.BSC.ProfileNFT.StartAt)),
+		settings.Config.Contracts.BSC.ProfileNFT.QueryHistory,
 	)
 
 	r := router.SetupRouter(settings.Config.Mode)

@@ -18,12 +18,28 @@ type AppConfig struct {
 
 type ContractsConfig struct {
 	BSCT struct {
-		CollectPaidMw string `mapstructure:"CollectPaidMw"`
-		ProfileNFT    string `mapstructure:"ProfileNFT"`
+		CollectPaidMw struct {
+			Address string `mapstructure:"address"`
+			StartAt uint64 `mapstructure:"start_at"`
+			QueryHistory bool `mapstructure:"query_history"`
+		} 
+		ProfileNFT struct {
+			Address string `mapstructure:"address"`
+			StartAt uint64 `mapstructure:"start_at"`
+			QueryHistory bool `mapstructure:"query_history"`
+		} 
 	}
 	BSC struct {
-		CollectPaidMw string `mapstructure:"CollectPaidMw"`
-		ProfileNFT    string `mapstructure:"ProfileNFT"`
+		CollectPaidMw struct {
+			Address string `mapstructure:"address"`
+			StartAt uint64 `mapstructure:"start_at"`
+			QueryHistory bool `mapstructure:"query_history"`
+		} 
+		ProfileNFT struct {
+			Address string `mapstructure:"address"`
+			StartAt uint64 `mapstructure:"start_at"`
+			QueryHistory bool `mapstructure:"query_history"`
+		} 
 	}
 }
 

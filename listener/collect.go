@@ -15,29 +15,68 @@ import (
 
 var topicCollectPaidMwSet = crypto.Keccak256Hash([]byte("CollectPaidMwSet(address,uint256,uint256,uint256,uint256,address,address,bool)"))
 
-func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Address) {
+func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
 	ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
 	if(err != nil) {
 		log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
 		return
 	}
 
-	currentBlockNumber, err := ethClient.BlockNumber(context.Background())
+	_currentBlockNumber, err := ethClient.BlockNumber(context.Background())
 	if err != nil {
 		log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
+	}
+
+	currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
+
+	if(queryHistory) {
+		log.Printf("[%d]: Start query CollectPaidMwSet events...", chainID)
+
+		var _startAt *big.Int = startAt
+		var _endAt *big.Int = big.NewInt(0)
+		for {
+			_endAt.Add(_startAt, big.NewInt(49999))
+			if(_endAt.Cmp(currentBlockNumber) > 0) {
+				_endAt.Set(currentBlockNumber)
+			}
+
+			query := ethereum.FilterQuery{
+				Addresses: []common.Address{contractAddress},
+				Topics:    [][]common.Hash{{topicCollectPaidMwSet}},
+				FromBlock: _startAt,
+				ToBlock: _endAt,
+			}
+		
+			historyLogs, err := ethClient.FilterLogs(context.Background(), query)
+			if(err != nil) {
+				log.Fatalf("[%d]: FilterLogs CollectPaidMwSet failed, ", err)
+				return
+			}
+
+			for _, historyLog := range historyLogs {
+				logic.SetCollectInfo(chainID, historyLog)
+			}
+			if(_endAt.Cmp(currentBlockNumber) == 0) {
+				break
+			}
+			_startAt.Add(_endAt, big.NewInt(1))
+		}
+		
+		log.Printf("[%d]: Query CollectPaidMwSet history Logs successfully", chainID)
 	}
 
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
 		Topics:    [][]common.Hash{{topicCollectPaidMwSet}},
-		FromBlock: big.NewInt(int64(currentBlockNumber)),
+		FromBlock: currentBlockNumber,
 	}
 
 	logs := make(chan types.Log)
 	sub, err := ethClient.SubscribeFilterLogs(context.Background(), query, logs)
 	if err != nil {
-		log.Fatalf("[%s]: SubscribeFilterLogs failed, %v", chainID, err)
+		log.Fatalf("[%s]: SubscribeFilterLogs CollectPaidMwSet failed, %v", chainID, err)
 	}
+	log.Printf("[%d] Chan CollectPaidMwSet started.", chainID)
 
 	for {
 		select {
