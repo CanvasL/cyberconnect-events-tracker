@@ -1,8 +1,7 @@
 package contract_abi
 
 import (
-	"os"
-	"path/filepath"
+	_ "embed"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -11,23 +10,20 @@ import (
 var AbiCollectPaidMw abi.ABI
 var AbiProfileNFT abi.ABI
 
+var (
+	//go:embed abi/CollectPaidMw.json
+	CollectPaidMw string
+	//go:embed abi/ProfileNFT.json
+	ProfileNFT string
+)
+
 func Init() (err error) {
-	path, _ := filepath.Abs("./contract_abi/abi/CollectPaidMw.json")
-	file, err := os.ReadFile(path)
-	if err != nil {
-		return
-	}
-	AbiCollectPaidMw, err = abi.JSON(strings.NewReader(string(file)))
+	AbiCollectPaidMw, err = abi.JSON(strings.NewReader(CollectPaidMw))
 	if err != nil {
 		return
 	}
 
-	path, _ = filepath.Abs("./contract_abi/abi/ProfileNFT.json")
-	file, err = os.ReadFile(path)
-	if err != nil {
-		return
-	}
-	AbiProfileNFT, err = abi.JSON(strings.NewReader(string(file)))
+	AbiProfileNFT, err = abi.JSON(strings.NewReader(ProfileNFT))
 	if err != nil {
 		return
 	}
