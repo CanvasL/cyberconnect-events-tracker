@@ -42,7 +42,7 @@ func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Addres
 	if err != nil {
 		log.Fatalf("[%s]: SubscribeFilterLogs CollectPaidMwSet failed, %v", chainID, err)
 	}
-	log.Printf("[%d] Chan CollectPaidMwSet started.", chainID)
+	log.Printf("[%d]: Chan CollectPaidMwSet started.", chainID)
 
 	for {
 		select {
@@ -69,13 +69,6 @@ func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address,
 			return
 		}
 
-		_currentBlockNumber, err := ethClient.BlockNumber(context.Background())
-		if err != nil {
-			log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
-		}
-
-		currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
-
 		var _startAt *big.Int
 		var _endAt *big.Int = big.NewInt(0)
 		previousAt, err := logic.GetPreviousTrackedCollectPaidMwSetBlockNumber(chainID)
@@ -91,6 +84,16 @@ func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address,
 			_startAt = big.NewInt(int64(previousAt))
 			log.Printf("[%d]: Continue query CollectPaidMwSet events at [%d]...", chainID, _startAt.Uint64())
 		}
+
+		var _currentBlockNumber uint64
+		var currentBlockNumber *big.Int
+
+		_currentBlockNumber, err = ethClient.BlockNumber(context.Background())
+		if err != nil {
+			log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
+			return
+		}
+		currentBlockNumber = big.NewInt(int64(_currentBlockNumber))
 
 		for {
 			_endAt.Add(_startAt, big.NewInt(49999))
@@ -113,12 +116,19 @@ func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address,
 
 			for _, historyLog := range historyLogs {
 				err = logic.SetCollectInfo(chainID, historyLog)
-				if(err != nil) {
+				if err != nil {
 					log.Fatalf("[%d]: SetCollectInfo failed, %v", chainID, err)
 				}
 			}
 
 			time.Sleep(200 * time.Millisecond)
+
+			_currentBlockNumber, err = ethClient.BlockNumber(context.Background())
+			if err != nil {
+				log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
+			} else {
+				currentBlockNumber = big.NewInt(int64(_currentBlockNumber))
+			}
 
 			if _endAt.Cmp(currentBlockNumber) == 0 {
 				break

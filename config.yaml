@@ -17,7 +17,7 @@ contracts:
     CollectPaidMw: 
       address: "0xb09ae63a2fd28686a0f386d1ddfd4b53687bf298"
       start_at: 25173248
-      query_history: true
+      query_history: false
     ProfileNFT: 
       address: "0x2723522702093601e6360cae665518c4f63e9da6"
       start_at: 21275193

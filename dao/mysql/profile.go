@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"cyber-events-tracker/model"
-	"database/sql"
 )
 
 func InsertCreateProfileEvent(param *model.ParamCreateProfileEvent) (err error) {
@@ -24,20 +23,15 @@ func GetCreateProfileEventParams(chainID uint64, account string) ([]*model.Param
 	profileInfoList := make([]*model.ParamCreateProfileEvent, 0, 2)
 	sqlStr := "SELECT chain_name, chain_id, block_number, tx_hash, `to`, profile_id, handle, avatar, metadata FROM create_profile_events WHERE chain_id = ? AND `to` = ? ORDER BY block_number DESC"
 	err := db.Select(&profileInfoList, sqlStr, chainID, account)
-	if(err != nil) {
-		if err == sql.ErrNoRows {
-			return []*model.ParamCreateProfileEvent{}, nil
-		}
-	}
-	return profileInfoList, nil
+	return profileInfoList, err
 }
 
 func GetLatestTrackedCreateProfileBlockNumber(chainID uint64) (uint64, error) {
-	profileInfoList := make([]*model.ParamCreateProfileEvent, 0, 2)
+	profileInfo := new(model.ParamCreateProfileEvent)
 	sqlStr := "SELECT block_number FROM create_profile_events WHERE chain_id = ? ORDER BY id DESC LIMIT 1"
-	err := db.Select(&profileInfoList, sqlStr, chainID)
-	if(err != nil) {
-		return 0 ,err
+	err := db.Get(profileInfo, sqlStr, chainID)
+	if err != nil {
+		return 0, err
 	}
-	return profileInfoList[0].BlockNumber, nil
+	return profileInfo.BlockNumber, nil
 }
