@@ -3,6 +3,7 @@ package listener
 import (
 	"context"
 	"cyber-events-tracker/logic"
+	"cyber-events-tracker/settings"
 	"cyber-events-tracker/utils"
 	"database/sql"
 	"log"
@@ -61,8 +62,8 @@ func CollectPaidMwSetEventListener(chainID uint64, contractAddress common.Addres
 	}
 }
 
-func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
-	if queryHistory {
+func QueryCollectPaidMwSetEvents(chainID uint64, contractConfig *settings.ContractConfig) {
+	if contractConfig.QueryHistory {
 		ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
 		if err != nil {
 			log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
@@ -74,7 +75,7 @@ func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address,
 		previousAt, err := logic.GetPreviousTrackedCollectPaidMwSetBlockNumber(chainID)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				_startAt = startAt
+				_startAt = big.NewInt(contractConfig.StartAt)
 				log.Printf("[%d]: Start query CollectPaidMwSet events at [%d]...", chainID, _startAt.Uint64())
 			} else {
 				log.Fatalf("[%d]: GetPreviousTrackedCollectPaidMwSetBlockNumber failed, %v", chainID, err)
@@ -96,13 +97,13 @@ func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address,
 		currentBlockNumber = big.NewInt(int64(_currentBlockNumber))
 
 		for {
-			_endAt.Add(_startAt, big.NewInt(49999))
+			_endAt.Add(_startAt, big.NewInt(contractConfig.QueryInterval))
 			if _endAt.Cmp(currentBlockNumber) > 0 {
 				_endAt.Set(currentBlockNumber)
 			}
 
 			query := ethereum.FilterQuery{
-				Addresses: []common.Address{contractAddress},
+				Addresses: []common.Address{common.HexToAddress(contractConfig.Address)},
 				Topics:    [][]common.Hash{{topicCollectPaidMwSet}},
 				FromBlock: _startAt,
 				ToBlock:   _endAt,

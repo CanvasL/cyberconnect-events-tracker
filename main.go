@@ -8,7 +8,6 @@ import (
 	"cyber-events-tracker/settings"
 	"fmt"
 	"log"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -23,58 +22,54 @@ func main() {
 		log.Fatalln("Init contract abi failed, ", err)
 		return
 	}
-	
+
 	if err := mysql.Init(settings.Config.MySql); err != nil {
-		fmt.Println("Init mysql failed, ", err)
+		log.Println("Init mysql failed, ", err)
 		return
 	}
 	defer mysql.Close()
 
+	log.Printf("\033[1;34m╔══════════════════════════════════════════╗\033[0m")
+	log.Printf("\033[1;34m║        Cyber Events Tracker %s       ║\033[0m", settings.Config.Version)
+	log.Printf("\033[1;34m╚══════════════════════════════════════════╝\033[0m")
+
 	listener.QueryCollectPaidMwSetEvents(
-		97, 
-		common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw.Address),
-		big.NewInt(int64(settings.Config.Contracts.BSCT.CollectPaidMw.StartAt)),
-		settings.Config.Contracts.BSCT.CollectPaidMw.QueryHistory,
+		97,
+		settings.Config.Contracts.BSCT.CollectPaidMw,
 	)
 
 	listener.QueryCreateProfileEvents(
-		97, 
-		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT.Address),
-		big.NewInt(int64(settings.Config.Contracts.BSCT.ProfileNFT.StartAt)),
-		settings.Config.Contracts.BSCT.ProfileNFT.QueryHistory,
+		97,
+		settings.Config.Contracts.BSCT.ProfileNFT,
 	)
 
 	listener.QueryCollectPaidMwSetEvents(
-		56, 
-		common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw.Address),
-		big.NewInt(int64(settings.Config.Contracts.BSC.CollectPaidMw.StartAt)),
-		settings.Config.Contracts.BSC.CollectPaidMw.QueryHistory,
+		56,
+		settings.Config.Contracts.BSC.CollectPaidMw,
 	)
 
 	listener.QueryCreateProfileEvents(
-		56, 
-		common.HexToAddress(settings.Config.Contracts.BSC.ProfileNFT.Address),
-		big.NewInt(int64(settings.Config.Contracts.BSC.ProfileNFT.StartAt)),
-		settings.Config.Contracts.BSC.ProfileNFT.QueryHistory,
+		56,
+		settings.Config.Contracts.BSC.ProfileNFT,
 	)
 
 	go listener.CollectPaidMwSetEventListener(
-		97, 
+		97,
 		common.HexToAddress(settings.Config.Contracts.BSCT.CollectPaidMw.Address),
 	)
 
 	go listener.CreateProfileEventListener(
-		97, 
+		97,
 		common.HexToAddress(settings.Config.Contracts.BSCT.ProfileNFT.Address),
 	)
 
 	go listener.CollectPaidMwSetEventListener(
-		56, 
+		56,
 		common.HexToAddress(settings.Config.Contracts.BSC.CollectPaidMw.Address),
 	)
 
 	go listener.CreateProfileEventListener(
-		56, 
+		56,
 		common.HexToAddress(settings.Config.Contracts.BSC.ProfileNFT.Address),
 	)
 

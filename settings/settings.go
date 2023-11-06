@@ -18,29 +18,20 @@ type AppConfig struct {
 
 type ContractsConfig struct {
 	BSCT struct {
-		CollectPaidMw struct {
-			Address string `mapstructure:"address"`
-			StartAt uint64 `mapstructure:"start_at"`
-			QueryHistory bool `mapstructure:"query_history"`
-		} 
-		ProfileNFT struct {
-			Address string `mapstructure:"address"`
-			StartAt uint64 `mapstructure:"start_at"`
-			QueryHistory bool `mapstructure:"query_history"`
-		} 
+		CollectPaidMw *ContractConfig
+		ProfileNFT *ContractConfig
 	}
 	BSC struct {
-		CollectPaidMw struct {
-			Address string `mapstructure:"address"`
-			StartAt uint64 `mapstructure:"start_at"`
-			QueryHistory bool `mapstructure:"query_history"`
-		} 
-		ProfileNFT struct {
-			Address string `mapstructure:"address"`
-			StartAt uint64 `mapstructure:"start_at"`
-			QueryHistory bool `mapstructure:"query_history"`
-		} 
+		CollectPaidMw *ContractConfig
+		ProfileNFT *ContractConfig
 	}
+}
+
+type ContractConfig struct {
+	Address string `mapstructure:"address"`
+	StartAt int64 `mapstructure:"start_at"`
+	QueryHistory bool `mapstructure:"query_history"`
+	QueryInterval int64 `mapstructure:"query_interval"`	
 }
 
 type MySqlConfig struct {

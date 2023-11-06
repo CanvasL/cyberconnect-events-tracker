@@ -3,6 +3,7 @@ package listener
 import (
 	"context"
 	"cyber-events-tracker/logic"
+	"cyber-events-tracker/settings"
 	"cyber-events-tracker/utils"
 	"database/sql"
 	"log"
@@ -27,6 +28,7 @@ func CreateProfileEventListener(chainID uint64, contractAddress common.Address) 
 	_currentBlockNumber, err := ethClient.BlockNumber(context.Background())
 	if err != nil {
 		log.Fatalf("[%d]: Get current BlockNumber failed, %v", chainID, err)
+		return
 	}
 
 	currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
@@ -61,8 +63,8 @@ func CreateProfileEventListener(chainID uint64, contractAddress common.Address) 
 	}
 }
 
-func QueryCreateProfileEvents(chainID uint64, contractAddress common.Address, startAt *big.Int, queryHistory bool) {
-	if queryHistory {
+func QueryCreateProfileEvents(chainID uint64, contractSetting *settings.ContractConfig) {
+	if contractSetting.QueryHistory {
 		ethClient, err := utils.GetEthClient(utils.GetChainRPC(chainID))
 		if err != nil {
 			log.Fatalf("[%d]: GetEthClient failed, %v", chainID, err)
@@ -74,7 +76,7 @@ func QueryCreateProfileEvents(chainID uint64, contractAddress common.Address, st
 		previousAt, err := logic.GetPreviousTrackedCreateProfileBlockNumber(chainID)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				_startAt = startAt
+				_startAt = big.NewInt(contractSetting.StartAt)
 				log.Printf("[%d]: Start query CreateProfile events at [%d]...", chainID, _startAt.Uint64())
 			} else {
 				log.Fatalf("[%d]: GetPreviousTrackedCreateProfileBlockNumber failed, %v", chainID, err)
@@ -96,13 +98,13 @@ func QueryCreateProfileEvents(chainID uint64, contractAddress common.Address, st
 		currentBlockNumber = big.NewInt(int64(_currentBlockNumber))
 
 		for {
-			_endAt.Add(_startAt, big.NewInt(49999))
+			_endAt.Add(_startAt, big.NewInt(contractSetting.QueryInterval))
 			if _endAt.Cmp(currentBlockNumber) > 0 {
 				_endAt.Set(currentBlockNumber)
 			}
 
 			query := ethereum.FilterQuery{
-				Addresses: []common.Address{contractAddress},
+				Addresses: []common.Address{common.HexToAddress(contractSetting.Address)},
 				Topics:    [][]common.Hash{{topicCreateProfile}},
 				FromBlock: _startAt,
 				ToBlock:   _endAt,
