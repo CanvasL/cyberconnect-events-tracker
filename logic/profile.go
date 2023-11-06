@@ -45,3 +45,7 @@ func SetProfilesInfo(chainID uint64, vLog types.Log) (err error) {
 func GetProfilesInfo(chainID uint64, account string) ([]*model.ParamCreateProfileEvent, error) {
 	return mysql.GetCreateProfileEventParams(chainID, account)
 }
+
+func GetPreviousTrackedCreateProfileBlockNumber(chainID uint64) (uint64, error) {
+	return mysql.GetLatestTrackedCreateProfileBlockNumber(chainID)
+}

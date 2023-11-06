@@ -4,6 +4,7 @@ import (
 	"context"
 	"cyber-events-tracker/logic"
 	"cyber-events-tracker/utils"
+	"database/sql"
 	"log"
 	"math/big"
 	"time"
@@ -75,10 +76,22 @@ func QueryCollectPaidMwSetEvents(chainID uint64, contractAddress common.Address,
 
 		currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
 
-		log.Printf("[%d]: Start query CollectPaidMwSet events...", chainID)
-
-		var _startAt *big.Int = startAt
+		var _startAt *big.Int
 		var _endAt *big.Int = big.NewInt(0)
+		previousAt, err := logic.GetPreviousTrackedCollectPaidMwSetBlockNumber(chainID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				_startAt = startAt
+				log.Printf("[%d]: Start query CollectPaidMwSet events at [%d]...", chainID, _startAt.Uint64())
+			} else {
+				log.Fatalf("[%d]: GetPreviousTrackedCollectPaidMwSetBlockNumber failed, %v", chainID, err)
+				return
+			}
+		} else {
+			_startAt = big.NewInt(int64(previousAt))
+			log.Printf("[%d]: Continue query CollectPaidMwSet events at [%d]...", chainID, _startAt.Uint64())
+		}
+
 		for {
 			_endAt.Add(_startAt, big.NewInt(49999))
 			if _endAt.Cmp(currentBlockNumber) > 0 {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"cyber-events-tracker/logic"
 	"cyber-events-tracker/utils"
+	"database/sql"
 	"log"
 	"math/big"
 	"time"
@@ -75,10 +76,22 @@ func QueryCreateProfileEvents(chainID uint64, contractAddress common.Address, st
 
 		currentBlockNumber := big.NewInt(int64(_currentBlockNumber))
 
-		log.Printf("[%d]: Start query CreateProfile events...", chainID)
-
-		var _startAt *big.Int = big.NewInt(25455191)
+		var _startAt *big.Int
 		var _endAt *big.Int = big.NewInt(0)
+		previousAt, err := logic.GetPreviousTrackedCreateProfileBlockNumber(chainID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				_startAt = startAt
+				log.Printf("[%d]: Start query CreateProfile events at [%d]...", chainID, _startAt.Uint64())
+			} else {
+				log.Fatalf("[%d]: GetPreviousTrackedCreateProfileBlockNumber failed, %v", chainID, err)
+				return
+			}
+		} else {
+			_startAt = big.NewInt(int64(previousAt))
+			log.Printf("[%d]: Continue query CreateProfile events at [%d]...", chainID, _startAt.Uint64())
+		}
+
 		for {
 			_endAt.Add(_startAt, big.NewInt(49999))
 			if _endAt.Cmp(currentBlockNumber) > 0 {
@@ -97,10 +110,10 @@ func QueryCreateProfileEvents(chainID uint64, contractAddress common.Address, st
 				log.Fatalf("[%d]: FilterLogs CreateProfile failed, %v", chainID, err)
 				return
 			}
-		
+
 			for _, historyLog := range historyLogs {
 				err = logic.SetProfilesInfo(chainID, historyLog)
-				if(err != nil) {
+				if err != nil {
 					log.Fatalf("[%d]: SetProfileInfo failed, %v", chainID, err)
 				}
 			}

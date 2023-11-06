@@ -50,3 +50,7 @@ func SetCollectInfo(chainID uint64, vLog types.Log) (err error) {
 func GetCollectInfo(chainID uint64, profileID string, essenceID string) (*model.ParamCollectPaidMwSetEvent, error) {
 	return mysql.GetCollectPaidMwSetEventParams(chainID, profileID, essenceID)
 }
+
+func GetPreviousTrackedCollectPaidMwSetBlockNumber(chainID uint64) (uint64, error) {
+	return mysql.GetLatestTrackedCollectPaidMwSetBlockNumber(chainID)
+}

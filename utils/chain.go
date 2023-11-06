@@ -27,9 +27,9 @@ func GetChainName(chainID uint64) (string, error) {
 func GetChainRPC(chainID uint64) (string) {
 	if(chainID == 97) {
 		return os.Getenv("BSCT_RPC_URL")
-	}
-	if(chainID == 56) {
+	} else if(chainID == 56) {
 		return os.Getenv("BSC_RPC_URL")
+	} else {
+		return ""
 	}
-	return ""
 }

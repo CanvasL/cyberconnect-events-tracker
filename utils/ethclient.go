@@ -1,7 +1,8 @@
 package utils
 
-import "github.com/ethereum/go-ethereum/ethclient"
-
+import (
+	"github.com/ethereum/go-ethereum/ethclient"
+)
 
 func GetEthClient(rpcUrl string) (*ethclient.Client, error) {
 	if ethClient, err := ethclient.Dial(rpcUrl); err != nil {
